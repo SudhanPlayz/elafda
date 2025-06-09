@@ -21,6 +21,7 @@ interface PostPageProps {
 }
 
 async function getPost(id: string) {
+  console.log("[getPost] Called with id:", id);
   try {
     const post = await db.post.findFirst({
       where: {
@@ -38,43 +39,54 @@ async function getPost(id: string) {
       },
     });
 
+    console.log("[getPost] Post fetched from DB:", post);
+
     if (!post) {
+      console.log("[getPost] No post found, returning null");
       return null;
     }
 
     // Increment view count - don't fail if this fails
     try {
+      console.log("[getPost] Incrementing view count for id:", id);
       await db.post.update({
         where: { id },
         data: { views: { increment: 1 } },
       });
+      console.log("[getPost] View count incremented");
     } catch (viewError) {
       // Log the error but don't fail the request
-      console.error("Failed to increment view count:", viewError);
+      console.error("[getPost] Failed to increment view count:", viewError);
     }
 
     return post;
   } catch (error) {
-    console.error("Error fetching post:", error);
+    console.error("[getPost] Error fetching post:", error);
     throw error; // Re-throw to trigger error boundary
   }
 }
 
 export default async function PostPage({ params }: PostPageProps) {
+  console.log("[PostPage] Called with params:", params);
   try {
     const { id } = await params;
+    console.log("[PostPage] Extracted id:", id);
 
     // Validate the ID parameter
     if (!id || typeof id !== "string" || id.trim() === "") {
+      console.log("[PostPage] Invalid id, calling notFound()");
       notFound();
     }
 
     const post = await getPost(id);
+    console.log("[PostPage] Post after getPost:", post);
 
     if (!post) {
+      console.log("[PostPage] Post not found, calling notFound()");
       notFound();
     }
 
+    console.log("[PostPage] Rendering post page for post id:", post.id);
     return (
       <div className="bg-background min-h-screen">
         <div className="container mx-auto px-4 py-6">
@@ -172,7 +184,7 @@ export default async function PostPage({ params }: PostPageProps) {
       </div>
     );
   } catch (error) {
-    console.error("Error in PostPage:", error);
+    console.error("[PostPage] Error in PostPage:", error);
     throw error; // Re-throw to trigger error boundary
   }
 }
