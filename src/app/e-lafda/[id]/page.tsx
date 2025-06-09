@@ -171,10 +171,10 @@ export default async function PostPage({ params }: PostPageProps) {
               </CardHeader>
 
               <CardContent className="space-y-6 pt-0">
-                <PostClientWrapper
+{/*                 <PostClientWrapper
                   postId={post.id}
                   content={post.description as unknown as TiptapContent}
-                />
+                /> */}
               </CardContent>
             </Card>
 
